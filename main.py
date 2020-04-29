@@ -16,7 +16,7 @@ def get_mouse_points(event, x, y, flags, param):
     global mouseX, mouseY, mouse_pts
     if event == cv2.EVENT_LBUTTONDOWN:
         mouseX, mouseY = x, y
-        cv2.circle(image, (x, y), 10, (0, 0, 0), 10)
+        cv2.circle(image, (x, y), 10, (0, 255, 255), 10)
         if "mouse_pts" not in globals():
             mouse_pts = []
         mouse_pts.append((x, y))
@@ -84,7 +84,7 @@ while cap.isOpened():
             image = frame
             cv2.imshow("image", image)
             cv2.waitKey(1)
-            if len(mouse_pts) == 6:
+            if len(mouse_pts) == 7:
                 cv2.destroyWindow("image")
                 break
             first_frame_display = False

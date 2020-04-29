@@ -1,5 +1,6 @@
 # SocialDistancingAI
 Using python, deep learning and computer vision to monitor social distancing.
+Idea Credits: LandingAI
 
 [![Watch the video](/images/cover.png)](https://www.youtube.com/watch?v=kxFwbn7Tap0&feature=emb_title)
 
@@ -36,10 +37,14 @@ These 4 points need to be provided in a pre-defined order which is following.
 * __Point3 (tl)__: Top left
 * __Point4 (tr)__: Top right
 
+
+
 #### Last 2 points:
 The last two points are used to mark two points 6 feet apart in the region of interest. For example this could be a person's height (easier to mark on the frame)
 
-The video below will help understand the points better
+The gif below will help understand the points better
+![mark4points](images/mark4points.gif)
+![mark4points](images/pedestrian.gif)
 
 ## How does it work?
 The complete block diagram of the algorithm can be seen below.

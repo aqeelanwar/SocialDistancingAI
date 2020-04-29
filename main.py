@@ -27,7 +27,7 @@ def get_mouse_points(event, x, y, flags, param):
 # Command-line input setup
 parser = argparse.ArgumentParser(description="SocialDistancing")
 parser.add_argument(
-    "--videopath", type=str, default="vid.mp4", help="Path to the video file"
+    "--videopath", type=str, default="vid_short.mp4", help="Path to the video file"
 )
 args = parser.parse_args()
 

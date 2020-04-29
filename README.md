@@ -1,6 +1,8 @@
 # SocialDistancingAI
 Using python, deep learning and computer vision to monitor social distancing.
 
+[![Watch the video](/images/cover.png)](https://www.youtube.com/watch?v=kxFwbn7Tap0&feature=emb_title)
+
 # How to install?
 It’s advisable to [make a new virtual environment](https://towardsdatascience.com/setting-up-python-platform-for-machine-learning-projects-cfd85682c54b) for this project and install the dependencies. Following steps can be taken to download get started with the project
 
@@ -43,4 +45,4 @@ The video below will help understand the points better
 The complete block diagram of the algorithm can be seen below.
 ![Block Diagram](images/block_diagram.png)
 
-A detailed article on the working of this project can be found here
+A detailed article on the working of this project can be found [here](https://medium.com/@aqeel.anwar/monitoring-social-distancing-using-ai-c5b81da44c9f)

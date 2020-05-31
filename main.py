@@ -4,6 +4,20 @@ import argparse
 from network_model import model
 from aux_functions import *
 
+# The following modules are added for InfluxDB
+from influxdb import InfluxDBClient #pip3 install influxdb
+import uuid
+import random
+import time
+
+client = InfluxDBClient(host='localhost', port=8086)
+client.create_database('Social-Distancing-AI')
+
+measurement_name = 'social-distancing-ai-m1'
+current_time = int(time.time() * 1000) #milliseconds
+location_tags = "Pedestrian-Overpass-BriefCam-Syndex"
+data = []
+
 # Suppress TF warnings
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
@@ -136,16 +150,31 @@ while cap.isOpened():
 
     last_h = 75
     text = "# 6ft violations: " + str(int(total_six_feet_violations))
+    num_six_feet_violations = total_six_feet_violations
     pedestrian_detect, last_h = put_text(pedestrian_detect, text, text_offset_y=last_h)
 
     text = "Stay-at-home Index: " + str(np.round(100 * sh_index, 1)) + "%"
     pedestrian_detect, last_h = put_text(pedestrian_detect, text, text_offset_y=last_h)
+    stay_at_home_index_percent = np.round(100 * sh_index, 1)
 
     if total_pairs != 0:
         sc_index = 1 - abs_six_feet_violations / total_pairs
 
     text = "Social-distancing Index: " + str(np.round(100 * sc_index, 1)) + "%"
     pedestrian_detect, last_h = put_text(pedestrian_detect, text, text_offset_y=last_h)
+    social_distancing_index_percent = np.round(100 * sc_index, 1)
+
+    current_point_time = current_time
+    data.append("{measurement},location={location} num_six_feet_violations={num_six_feet_violations},stay_at_home_index_percent={stay_at_home_index_percent},social_distancing_index_percent={social_distancing_index_percent} {timestamp}"
+                .format(measurement=measurement_name,
+                        location=location_tags,
+                        num_six_feet_violations=num_six_feet_violations,
+                        stay_at_home_index_percent=stay_at_home_index_percent,
+                        social_distancing_index_percent=social_distancing_index_percent,
+                        timestamp=current_point_time))
+    
+    client.write_points(data, database='Social-Distancing-AI', time_precision='ms', batch_size=500, protocol='line')
+
 
     cv2.imshow("Street Cam", pedestrian_detect)
     cv2.waitKey(1)

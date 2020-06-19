@@ -23,7 +23,7 @@ pip install –r requirements.txt
 ## Run the project
 ```
 cd SocialDistancingAI
-python main.py --videpath "vid_short.mp4"
+python main.py --videopath "vid_short.mp4"
 ```
 
 Running main.py will open a window of the first frame in the video. At this point the code expects the user to mark 6 points by clicking appropriate positions on the frame.

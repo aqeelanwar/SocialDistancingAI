@@ -15,17 +15,9 @@ class model:
         # # detection_graph, self.category_index = backbone.set_model(
         # #     'faster_rcnn_resnet50_coco_2018_01_28',
         # #     'mscoco_label_map.pbtxt')
-        detection_graph, self.category_index = backbone.set_model(
+        self.detection_graph, self.category_index = backbone.set_model(
             "ssd_mobilenet_v1_coco_2018_01_28", "mscoco_label_map.pbtxt"
         )
-        self.sess = tf.InteractiveSession(graph=detection_graph)
-        self.image_tensor = detection_graph.get_tensor_by_name("image_tensor:0")
-        self.detection_boxes = detection_graph.get_tensor_by_name("detection_boxes:0")
-        self.detection_scores = detection_graph.get_tensor_by_name("detection_scores:0")
-        self.detection_classes = detection_graph.get_tensor_by_name(
-            "detection_classes:0"
-        )
-        self.num_detections = detection_graph.get_tensor_by_name("num_detections:0")
 
     def get_category_index(self):
         return self.category_index
@@ -33,27 +25,37 @@ class model:
     def detect_pedestrians(self, frame):
         # Actual detection.
         # input_frame = cv2.resize(frame, (350, 200))
-        input_frame = frame
 
         # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
-        image_np_expanded = np.expand_dims(input_frame, axis=0)
-        (boxes, scores, classes, num) = self.sess.run(
-            [
-                self.detection_boxes,
-                self.detection_scores,
-                self.detection_classes,
-                self.num_detections,
-            ],
-            feed_dict={self.image_tensor: image_np_expanded},
-        )
+        # image_np_expanded = np.expand_dims(input_frame, axis=0)
 
-        classes = np.squeeze(classes).astype(np.int32)
-        boxes = np.squeeze(boxes)
-        scores = np.squeeze(scores)
+        image = np.asarray(frame)
+        # The input needs to be a tensor, convert it using `tf.convert_to_tensor`.
+        input_tensor = tf.convert_to_tensor(image)
+        # The model expects a batch of images, so add an axis with `tf.newaxis`.
+        input_tensor = input_tensor[tf.newaxis,...]
+
+        # Run inference
+        output_dict = self.detection_graph(input_tensor)
+
+        # All outputs are batches tensors.
+        # Convert to numpy arrays, and take index [0] to remove the batch dimension.
+        # We're only interested in the first num_detections.
+        num_detections = int(output_dict.pop('num_detections'))
+        output_dict = {key:value[0, :num_detections].numpy() for key,value in output_dict.items()}
+        output_dict['num_detections'] = num_detections
+
+        # detection_classes should be ints.
+        output_dict['detection_classes'] = output_dict['detection_classes'].astype(np.int64)
+
+        (boxes, scores, classes, num) = (output_dict['detection_boxes'], output_dict['detection_scores'],
+            output_dict['detection_classes'], output_dict['num_detections'])
+
         pedestrian_score_threshold = 0.35
         pedestrian_boxes = []
         total_pedestrians = 0
-        for i in range(int(num[0])):
+
+        for i in range(int(num)):
             if classes[i] in self.category_index.keys():
                 class_name = self.category_index[classes[i]]["name"]
                 # print(class_name)
